@@ -1,4 +1,4 @@
-(ns wellframe.core-test
+(ns wellframe.bayes-test
   (:require [clojure.test :refer :all]
             [wellframe.bayes :refer :all]))
 
@@ -100,3 +100,18 @@ isa test"
           s2' {"to" [0 2] "be" [0 2] "or" [0 1] "not" [0 1]}]
       (is (= s1' s1))
       (is (= s2' s2)))))
+
+(deftest end-to-end
+  (testing "Can build and execute model"
+    (let [spams ["buy my stuff for cash"
+                 "sell my stuff for cash"
+                 "cash for my stuff"
+                 "cash gold cash gold"]
+          ok ["just got a new job"
+              "what did you make for her?"]
+          msgs (concat (map vector spams (repeat true))
+                       (map vector ok (repeat false)))
+          model (build-model msgs)]
+      (is (= 0.99 (pr-message-is-spam model "cash")))
+      (is (= 0.5 (pr-message-is-spam model "cash job")))
+      (is (= (trunc 0.01) (trunc (pr-message-is-spam model "job")))))))

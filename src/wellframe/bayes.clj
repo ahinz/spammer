@@ -3,18 +3,34 @@
 
 ;; http://en.wikipedia.org/wiki/Naive_Bayes_spam_filtering
 
+(def max-pr 0.99)
+(def min-pr 0.01)
+
 (defn pr-word-is-spam
   "Given the current execution state, determine the probability
-   that the input word is spam"
-  [state word]
-  (let [[spam-count not-spam-count] (get state word)]
-    (if (or (nil? spam-count)
-            (nil? not-spam-count))
-      nil
-      (/ spam-count (+ spam-count not-spam-count)))))
+   that the input word is spam
+
+   Note that this probability is used in a log formulation such as:
+   ln(P) and ln(1-P)
+
+   Therefore the values returned by this method are clamped to
+   max-pr and min-pr
+  "
+  ([state word] (pr-word-is-spam state word max-pr min-pr))
+  ([state word max-pr min-pr]
+   (let [[spam-count not-spam-count] (get state word)]
+     (if (or (nil? spam-count)
+             (nil? not-spam-count))
+       nil
+       (-> (/ spam-count (+ spam-count not-spam-count))
+           (min max-pr)
+           (max min-pr))))))
 
 (defn- ln [x]
   (Math/log x))
+
+(defn- log [x]
+  (println x) x)
 
 (defn pr-word-list-is-spam
   "Given list of words compute the combined probability that
@@ -25,7 +41,7 @@
   ;; To avoid floating point error we can use a log formulation instead
   (let [η (->> word-list
                (map #(pr-word-is-spam state %))
-               (filter #(and (not (nil? %)) (> % 0)))
+               (filter #(not (nil? %)))
                (map #(- (ln (- 1.0 %)) (ln %)))
                (reduce +))]
     (/ 1.0 (+ 1.0 (Math/exp η)))))
@@ -79,3 +95,17 @@
   (->> messages
        (map #(apply state-diff-for-message %))
        (reduce additive-merge-states)))
+
+(defn pr-message-is-spam
+  "Give the probability that the input message is spam"
+  [state message]
+  (->> message
+       decompose-message
+
+       ;; Get the word list
+       first
+
+       ;; Strip the counts
+       (map first)
+
+       (pr-word-list-is-spam state)))
