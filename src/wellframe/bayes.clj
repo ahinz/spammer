@@ -35,6 +35,7 @@
    [map from <word> -> <count>, # of total words"
   [message]
   (let [words (-> message
+                  .toLowerCase
                   ;; Remove non text characters
                   (.replaceAll "[^A-Za-z \n\r]" " ")
 

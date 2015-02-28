@@ -31,6 +31,11 @@
              (trunc p'))))))
 
 (deftest string-functions
+  (testing "strips case"
+    (let [message "thIS is THAT not This"
+          [m _] (decompose-message message)]
+      (is (= {"this" 2 "that" 1 "not" 1 "is" 1} m))))
+
   (testing "handles html by stripping crap out"
     (let [message "<html><head><body color='red'>hello"
           [m v] (decompose-message message)]
@@ -56,6 +61,23 @@ isa test"
 
 (deftest utilities
 
+  (testing "can build model from message strings"
+    (let [strings [["Silence is golden when you can't think of a good answer." true]
+                   ["It's not enough to create magic. You have to create a price for magic, too. You have to create rules." false]
+                   ["The thing to remember is that that the future comes one day at a time." false]
+                   ["Curious things habits. People themselves never knew they had them." true]]
+          model (->> strings
+                     build-model
+
+                     (filter (fn [[k [a b]]] (or (> a 1) (> b 1))))
+
+                     ;; Check only a subset
+                     (into {}))
+          model' {"a" [1 2], "that" [0 2], "have" [0 2],
+                  "magic" [0 2], "the" [0 2], "to" [0 4],
+                  "create" [0 3], "you" [1 2]}]
+      (is (= model' model))))
+
   (testing "Can merge states"
     (let [state0 {"w0" [1 2]
                   "w1" [3 4]}
@@ -72,9 +94,9 @@ isa test"
 
   (testing "compute a model state for a given message"
     (let [s1 (state-diff-for-message "to be or not to be" true)
-          s2 (state-diff-for-message "to be or not to be" false)])
-    )
-  )
+          s2 (state-diff-for-message "to be or not to be" false)
 
-;;
-;; build-model
+          s1' {"to" [2 0] "be" [2 0] "or" [1 0] "not" [1 0]}
+          s2' {"to" [0 2] "be" [0 2] "or" [0 1] "not" [0 1]}]
+      (is (= s1' s1))
+      (is (= s2' s2)))))
