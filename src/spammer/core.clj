@@ -31,7 +31,9 @@
 (def training-config (:data config))
 
 (defn- train [db body is-spam]
-  (dao/update-state db (bayes/build-model [[body is-spam]])))
+  (dao/update-state db (bayes/build-model [[body is-spam]])
+                    (if is-spam 1 0)
+                    (if is-spam 0 1)))
 
 (defn- slurp-dir [path n]
   (->> path
@@ -44,14 +46,17 @@
   (let [spam-messages (map vector (slurp-dir spam-path n) (repeat true))
         ham-messages (map vector (slurp-dir ham-path n) (repeat false))
         messages (concat spam-messages ham-messages)]
-    (bayes/build-model messages)))
+    [(bayes/build-model messages)
+     (count spam-messages)
+     (count ham-messages)]))
 
 (defroutes app
   (POST "/train" []
-        (let [training-state (create-training-state-from-files (:samples training-config)
-                                  (:spam training-config)
-                                  (:ham training-config))]
-          (dao/update-state db training-state)))
+        (let [[training-state n-spam n-ham] (create-training-state-from-files
+                                             (:samples training-config)
+                                             (:spam training-config)
+                                             (:ham training-config))]
+          (dao/update-state db training-state n-spam n-ham)))
   (POST "/flush" []
         (dao/clear-all db))
   (POST "/train/spam" {body :body}
