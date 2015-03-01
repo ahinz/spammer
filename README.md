@@ -71,6 +71,63 @@ Returns:
 
 ```
 
+## Scaling Considerations
+
+There are three main processing parts of this system:
+* Messaging parsing
+* Probability calculation
+* Word count retrieval
+
+The first two bullet points can scale linearly with the number of
+compute units and computers. Putting a load balancer (HAProxy, nginx) in
+front of these scalable API servers should allow for a very high
+throughput.
+
+Word count retrieval is currently done via Redis. This example is using
+Redis 2, which doesn't support clustering out of the box. However there
+are two obvious strategies for scaling up the word count retrieval
+aspect of the system. The easiest is to upgrade to Redis v3 which has
+built in clustering support.
+
+If we wanted to stay on Redis 2 one could shard keys based on their
+integer values to any number of N servers. The biggest issue would be
+support tools for adding/removing nodes from the ring.
+
+Redis also scales horizontally on more servers by adding secondary
+nodes.
+
+Right now each request pulls directly from redis. If this becomes a
+bottleneck we can add a memory caching layer on each API server. The
+question of updating the model becomes important. However, the general
+use case will be to add, say millions of emails to this
+system. The model classifier will generally change quite slowly in this
+case, so as long as the caches have a reasonable timeout, say 5 - 20
+minutes, an out of date model shouldn't really effect the outcome.
+
+In writing this API the use case that was considered was testing single
+(or small sets of) messages on a streaming basis, thus ruling out any
+sort of batch processing.
+
+## Failure Recovery
+
+### Redis
+
+Each Redis master should have at least one fallover secondary server
+that can take over.
+
+In the case of a network partition, Redis doesn't guarantee that all
+data written will be maintained. It does provide a somewhat weaker
+guarantee that a partition lasting less than `node timeout` seconds will
+not result in data loss.
+
+See http://redis.io/topics/cluster-tutorial for more info.
+
+### API Servers/Load Balancer
+
+If this system were to be deployed on AWS, using a standard Elastic Load
+Balancer we need not fear a node failing. In that case the health check
+will fail and the API Load Balancer will self heal.
+
 ## License
 
 Copyright © 2015 Adam Hinz
