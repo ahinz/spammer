@@ -1,6 +1,6 @@
-(ns wellframe.bayes-test
+(ns spammer.bayes-test
   (:require [clojure.test :refer :all]
-            [wellframe.bayes :refer :all]))
+            [spammer.bayes :refer :all]))
 
 (defn- trunc
   ([a] (trunc a 10))

@@ -1,4 +1,4 @@
-(defproject wellframe "0.1.0-SNAPSHOT"
+(defproject spammer "0.1.0-SNAPSHOT"
   :description "FIXME: write description"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
@@ -8,7 +8,7 @@
                  [ring/ring-defaults "0.1.2"]
                  [org.clojure/data.json "0.2.5"]]
   :plugins [[lein-ring "0.8.13"]]
-  :ring {:handler wellframe.core/app}
+  :ring {:handler spammer.core/app}
   :profiles
   {:dev {:dependencies [[javax.servlet/servlet-api "2.5"]
                         [ring-mock "0.1.5"]]}})

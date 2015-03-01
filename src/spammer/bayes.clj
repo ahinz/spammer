@@ -1,4 +1,4 @@
-(ns wellframe.bayes
+(ns spammer.bayes
   (:require [clojure.string :as s]))
 
 ;; http://en.wikipedia.org/wiki/Naive_Bayes_spam_filtering

@@ -1,10 +1,10 @@
-(ns wellframe.core-test
+(ns spammer.core-test
   (:import [java.io ByteArrayInputStream])
   (:require [ring.mock.request :refer :all]
             [clojure.test :refer :all]
             [clojure.data.json :as json]
-            [wellframe.bayes :as bayes]
-            [wellframe.core :refer :all]))
+            [spammer.bayes :as bayes]
+            [spammer.core :refer :all]))
 
 (defn wrap-as-stream [s]
   (ByteArrayInputStream. (.getBytes s "UTF-8")))

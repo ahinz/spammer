@@ -1,8 +1,8 @@
-(ns wellframe.core
+(ns spammer.core
   (:require [compojure.core :refer :all]
             [compojure.route :as route]
             [clojure.data.json :as json]
-            [wellframe.bayes :as bayes]
+            [spammer.bayes :as bayes]
             [clojure.java.io :as io]))
 
 (set! *warn-on-reflection* true)

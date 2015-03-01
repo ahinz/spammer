@@ -1,3 +1,3 @@
-# Introduction to wellframe
+# Introduction to spammer
 
 TODO: write [great documentation](http://jacobian.org/writing/great-documentation/what-to-write/)
