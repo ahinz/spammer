@@ -6,6 +6,29 @@ Corporation. It was first introduced in 1937 and gained popularity
 worldwide after its use during World War II.
 ```
 
+## Environment
+
+For local testing you can run vagrant which will build a small
+deployment locally with the following:
+
+```
+1 Redis Server (v2, so no clustering yet)
+2 App Servers
+1 Load Balancer
+```
+
+To get started you need to build the jar:
+
+```
+lein ring uberjar
+```
+
+And then:
+
+```
+vagrant up
+```
+
 ## Training data
 
 Data samples can be loaded into the API using the training endpoints:
@@ -34,11 +57,6 @@ You should have leiningen installed then you can launch the server with:
 ```
 lein ring server-headless
 ```
-
-## Current State
-
-A super simple Bayesian filter API for checking if a given email message
-is spam or not. Right now the model is held entirely in memory.
 
 ## Routes
 
