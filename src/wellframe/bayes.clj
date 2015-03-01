@@ -53,7 +53,7 @@
 (defn decompose-message
   "Decompose a string/html message into a tuple of
    [map from <word> -> <count>, # of total words"
-  [message]
+  [^String message]
   (let [words (-> message
                   .toLowerCase
                   ;; Remove non text characters
