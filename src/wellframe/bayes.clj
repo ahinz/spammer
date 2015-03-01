@@ -2,6 +2,7 @@
   (:require [clojure.string :as s]))
 
 ;; http://en.wikipedia.org/wiki/Naive_Bayes_spam_filtering
+(set! *warn-on-reflection* true)
 
 (def max-pr 0.99)
 (def min-pr 0.01)
@@ -46,6 +47,9 @@
                (reduce +))]
     (/ 1.0 (+ 1.0 (Math/exp η)))))
 
+(defn- replace-all [^String t s v]
+  (.replaceAll t s v))
+
 (defn decompose-message
   "Decompose a string/html message into a tuple of
    [map from <word> -> <count>, # of total words"
@@ -53,7 +57,7 @@
   (let [words (-> message
                   .toLowerCase
                   ;; Remove non text characters
-                  (.replaceAll "[^A-Za-z \n\r]" " ")
+                  (replace-all "[^A-Za-z \n\r]" " ")
 
                   ;; Split via any whitespace
                   (s/split #"[ \n\r]+"))
