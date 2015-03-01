@@ -38,9 +38,10 @@
    the word list is spam using:
    p = (p_1 * p_2 * ... * p_n) /
        ((p_1 * p_2 * ... * p_n) + (1 - p_1)(1 - p_2) * ... * (1 - p_N))"
-  [state word-list]
+  [state-fn word-list]
   ;; To avoid floating point error we can use a log formulation instead
-  (let [η (->> word-list
+  (let [state (state-fn word-list)
+        η (->> word-list
                (map #(pr-word-is-spam state %))
                (filter #(not (nil? %)))
                (map #(- (ln (- 1.0 %)) (ln %)))
@@ -102,7 +103,7 @@
 
 (defn pr-message-is-spam
   "Give the probability that the input message is spam"
-  [state message]
+  [state-fn message]
   (->> message
        decompose-message
 
@@ -112,4 +113,4 @@
        ;; Strip the counts
        (map first)
 
-       (pr-word-list-is-spam state)))
+       (pr-word-list-is-spam state-fn)))

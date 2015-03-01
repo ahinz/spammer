@@ -1,0 +1,7 @@
+{:data
+ {:spam "/Users/ahinz/Downloads/spam_2"
+  :ham "/Users/ahinz/Downloads/easy_ham"
+  :samples 100}
+ :db
+ {:pool {}
+  :spec {:host "10.111.1.100" :port 6379}}}

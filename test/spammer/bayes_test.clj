@@ -6,6 +6,9 @@
   ([a] (trunc a 10))
   ([a i] (long (* a (Math/pow 10 i)))))
 
+(defn- wrap-state [s]
+  (fn [_] s))
+
 (deftest stats
   (testing "trunc"
     (is (= (trunc 0.2039244 5)
@@ -23,6 +26,7 @@
                  "goodword0" [4 12] ;; 25%
                  "goodword1" [10 90] ;; 10%
                  }
+          state (wrap-state state)
           p (pr-word-list-is-spam state ["spamword0" "spamword1"])
           p' 0.96428571428]
       ;; p=(0.75 * 0.90)/((0.75 * 0.90) + (1.0 - 0.75)*(1.0 - 0.90))
@@ -111,7 +115,7 @@ isa test"
               "what did you make for her?"]
           msgs (concat (map vector spams (repeat true))
                        (map vector ok (repeat false)))
-          model (build-model msgs)]
+          model (wrap-state (build-model msgs))]
       (is (= 0.99 (pr-message-is-spam model "cash")))
       (is (= 0.5 (pr-message-is-spam model "cash job")))
       (is (= (trunc 0.01) (trunc (pr-message-is-spam model "job")))))))
