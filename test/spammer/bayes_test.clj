@@ -6,8 +6,8 @@
   ([a] (trunc a 10))
   ([a i] (long (* a (Math/pow 10 i)))))
 
-(defn- wrap-state [s]
-  (fn [_] s))
+(defn- wrap-state [s n-spam n-not-spam]
+  (fn [_] {:words s :total-spam n-spam :total-non-spam n-not-spam}))
 
 (deftest stats
   (testing "trunc"
@@ -15,10 +15,12 @@
            20392)))
 
   (testing "calculates prob"
-    (let [a-state {"word" [6 3]}]
+    (let [a-state {:words {"word" [6 3]}
+                   :total-spam 6
+                   :total-non-spam 3}]
       ;; Missing from the list? --> nil
       (is (nil? (pr-word-is-spam a-state "blah")))
-      (is (= (pr-word-is-spam a-state "word") (/ 6 9)))))
+      (is (= (pr-word-is-spam a-state "word") 0.5))))
 
   (testing "simple word list calculation"
     (let [state {"spamword0" [12 4] ;; 75%
@@ -26,11 +28,9 @@
                  "goodword0" [4 12] ;; 25%
                  "goodword1" [10 90] ;; 10%
                  }
-          state (wrap-state state)
+          state (wrap-state state 2 2)
           p (pr-word-list-is-spam state ["spamword0" "spamword1"])
-          p' 0.96428571428]
-      ;; p=(0.75 * 0.90)/((0.75 * 0.90) + (1.0 - 0.75)*(1.0 - 0.90))
-      ;; p=0.96428571428
+          p' 0.9512899499]
       (is (= (trunc p)
              (trunc p'))))))
 
@@ -115,7 +115,7 @@ isa test"
               "what did you make for her?"]
           msgs (concat (map vector spams (repeat true))
                        (map vector ok (repeat false)))
-          model (wrap-state (build-model msgs))]
-      (is (= 0.99 (pr-message-is-spam model "cash")))
-      (is (= 0.5 (pr-message-is-spam model "cash job")))
-      (is (= (trunc 0.01) (trunc (pr-message-is-spam model "job")))))))
+          model (wrap-state (build-model msgs) 4 2)]
+      (is (= 0.8125 (pr-message-is-spam model "cash")))
+      (is (= (trunc 0.72222222222) (trunc (pr-message-is-spam model "cash job"))))
+      (is (= (trunc 0.375) (trunc (pr-message-is-spam model "job")))))))

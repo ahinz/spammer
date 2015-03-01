@@ -18,20 +18,42 @@
    max-pr and min-pr
   "
   ([state word] (pr-word-is-spam state word max-pr min-pr))
-  ([state word max-pr min-pr]
-   (let [[spam-count not-spam-count] (get state word)]
+  ([{words :words total-spam :total-spam total-non-spam :total-non-spam} word max-pr min-pr]
+   (let [[spam-count not-spam-count] (get words word)]
      (if (or (nil? spam-count)
              (nil? not-spam-count))
        nil
-       (-> (/ spam-count (+ spam-count not-spam-count))
-           (min max-pr)
-           (max min-pr))))))
+       (let [;; Prob any given message is spam
+             pr_s 0.5
+             ;; Prob any given message is not spam
+             pr_h (- 1.0 pr_s)
+
+             ;; Prob the given word occurs in a spam message
+             pr_ws (/ spam-count total-spam)
+
+             ;; Prob the given word occurs in a ham message
+             pr_wh (/ not-spam-count total-non-spam)
+             s 3.0
+             n (+ not-spam-count spam-count)
+
+             pr_sw (/ (* pr_ws pr_s)
+                      (+ (* pr_ws pr_s)
+                         (* pr_wh pr_h)))
+             pr_sw' (/ (+ (* pr_s s)
+                          (* pr_sw n))
+                       (+ s n))]
+         pr_sw')))))
 
 (defn- ln [x]
   (Math/log x))
 
 (defn- log [x]
   (println x) x)
+
+(defn- take-ends [n s]
+  (concat
+   (take (min n (count s)) s)
+   (take-last (min n (- (count s) n)) s)))
 
 (defn pr-word-list-is-spam
   "Given list of words compute the combined probability that
@@ -44,6 +66,15 @@
         η (->> word-list
                (map #(pr-word-is-spam state %))
                (filter #(not (nil? %)))
+
+               ;; We only really care about data at the
+               ;; extremes so take the 15 most interesting data point
+               ;; from each end of the spectrum
+               sort
+               (take-ends 15)
+
+               log
+
                (map #(- (ln (- 1.0 %)) (ln %)))
                (reduce +))]
     (/ 1.0 (+ 1.0 (Math/exp η)))))
