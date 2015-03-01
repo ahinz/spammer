@@ -11,6 +11,27 @@ worldwide after its use during World War II.
 A super simple Bayesian filter API for checking if a given email message
 is spam or not. Right now the model is held entirely in memory.
 
+## Routes
+
+You can train the model with two built in routes by posting the messages
+directly:
+
+```
+POST /train/spam
+POST /train/not-spam
+```
+
+To test messages POST JSON to:
+
+```
+POST /classify
+{"messages": ["message1", "message2"]}
+
+Returns:
+{:messages [{:prob 0.01, :is-spam false} {:prob 0.99, :is-spam true}]}
+
+```
+
 ## License
 
 Copyright © 2015 Adam Hinz
