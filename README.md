@@ -6,6 +6,14 @@ Corporation. It was first introduced in 1937 and gained popularity
 worldwide after its use during World War II.
 ```
 
+## Running
+
+You should have leiningen installed then you can launch the server with:
+
+```
+lein ring server-headless
+```
+
 ## Current State
 
 A super simple Bayesian filter API for checking if a given email message
