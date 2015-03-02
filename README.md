@@ -128,6 +128,31 @@ If this system were to be deployed on AWS, using a standard Elastic Load
 Balancer we need not fear a node failing. In that case the health check
 will fail and the API Load Balancer will self heal.
 
+## Accuracy
+
+There are two data sets that can be used to train and validate the model
+in the data directory. To run an empirical simulation you can use the
+"test-failure-rates.py" script. The script does three things:
+* Flush out any existing data
+* Trains with `n` samples from both the spam and ham datasets
+* Executes a classify call for `<# of spam training> - n` and `<# of ham
+  training> - n` and collates the results
+
+The more you increase `n` the more training is done and the fewer
+validations sets that are run.
+
+```
+python scripts/test-failure-rates.py localhost:3000 700
+
+----------------------------------------------------------
+Total Requests Made:            2496
+Failed Requests:                5% (140 out of 2496)
+
+Ham Messages Marked Correctly:  97% (1675 out of 1714)
+Spam Messages Marked Correctly: 92% (596 out of 642)
+----------------------------------------------------------
+```
+
 ## License
 
 Copyright © 2015 Adam Hinz
