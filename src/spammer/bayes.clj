@@ -73,8 +73,6 @@
                sort
                (take-ends 15)
 
-               log
-
                (map #(- (ln (- 1.0 %)) (ln %)))
                (reduce +))]
     (/ 1.0 (+ 1.0 (Math/exp η)))))
