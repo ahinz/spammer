@@ -38,8 +38,9 @@ POST /train/spam
 POST /train/not-spam
 ```
 
-There is training data https://spamassassin.apache.org/publiccorpus/ in
-the data folder. If you're using vagrant you can load the samples via:
+There is training data from
+https://spamassassin.apache.org/publiccorpus/ in the data folder. If
+you're using vagrant you can load the samples via:
 
 ```
 # To clear existing data run:
@@ -80,7 +81,7 @@ There are three main processing parts of this system:
 
 The first two bullet points can scale linearly with the number of
 compute units and computers. Putting a load balancer (HAProxy, nginx) in
-front of these scalable API servers should allow for a very high
+front of these scalable API servers should allow for very high
 throughput.
 
 Word count retrieval is currently done via Redis. This example is using
@@ -118,7 +119,11 @@ that can take over.
 In the case of a network partition, Redis doesn't guarantee that all
 data written will be maintained. It does provide a somewhat weaker
 guarantee that a partition lasting less than `node timeout` seconds will
-not result in data loss.
+generally not result in data loss. Even with this, network partitions
+could result in lost data:
+https://aphyr.com/posts/283-call-me-maybe-redis. For this system, I
+would posit that the loss of small amounts of training data would be
+okay, and not worth slowing the rest of the system down.
 
 See http://redis.io/topics/cluster-tutorial for more info.
 
